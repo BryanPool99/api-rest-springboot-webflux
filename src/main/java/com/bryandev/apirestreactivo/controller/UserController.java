@@ -1,9 +1,11 @@
 package com.bryandev.apirestreactivo.controller;
 
+import com.bryandev.apirestreactivo.exceptions.CustomException;
 import com.bryandev.apirestreactivo.model.dto.request.UserRequestDto;
 import com.bryandev.apirestreactivo.model.entities.UserEntity;
 import com.bryandev.apirestreactivo.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -12,6 +14,7 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("api/v1/user")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
     private final UserService userService;
 
@@ -22,18 +25,23 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public Mono<UserEntity> getUserById(@PathVariable Integer userId) {
-        return userService.getUserFindById(userId);
+        return userService.getUserFindById(userId)
+                .switchIfEmpty(Mono.error(new CustomException("No existe el usuario con id = " + userId)))
+                .onErrorResume(e -> Mono.error(new CustomException("No existe el usuario con id = " + userId)));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<UserEntity> createNewUser(@RequestBody UserRequestDto userRequestDto) {
-        return userService.createUser(userRequestDto);
+        return userService.createUser(userRequestDto)
+                .onErrorResume(e -> Mono.error(new CustomException("No se pudo insertar ese registro,e:"+e.getMessage())));
     }
 
     @PatchMapping("/{userId}")
     public Mono<UserEntity> updateUser(@PathVariable Integer userId, @RequestBody UserRequestDto userRequestDto) {
-        return userService.updateUser(userRequestDto, userId);
+        return userService.updateUser(userRequestDto, userId)
+                .onErrorResume(e -> Mono.error(new CustomException("No se pudo actualizar ese registro,e:"+e.getMessage())));
+
     }
 
     @DeleteMapping("/{userId}")

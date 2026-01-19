@@ -24,19 +24,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public Flux<UserEntity> getListUser() {
         log.info("Inicio de método de getListUser");
-        return userRepository.findAll()
-                .doOnError(throwable -> log.error("Error en método getListUser {}", throwable.getMessage()))
-                .doOnComplete(() -> log.info("Fin del método getListUser"));
+        return userRepository.findAll();
     }
 
     @Override
     public Mono<UserEntity> getUserFindById(Integer userId) {
         log.info("Inicio del método getUserFindById usando el id {}", userId);
-        return userRepository.findById(userId)
-                .doOnError(throwable ->
-                        log.error("Error en método getUserFindById {}", throwable.getMessage()))
-                .doOnSuccess((user) ->
-                        log.info("Fin del método getUserFindById con email {}", user.getEmail()));
+        return userRepository.findById(userId);
     }
 
     @Override
@@ -62,11 +56,14 @@ public class UserServiceImpl implements UserService {
                         //return Mono.error(new DuplicateResourceException("Ese email ya está en uso"));
                     }
                     return userRepository.save(newUser)
-                            .as(transactionalOperator::transactional)
+                            .as(transactionalOperator::transactional);
+                            /*
                             .doOnError(throwable ->
                                     log.error("Error en método createUser {}", throwable.getMessage()))
                             .doOnSuccess((user) ->
-                                    log.info("Fin del método createUser"));
+                                    log.info("Fin del método createUser"))
+
+                             */
                 });
     }
 
@@ -85,20 +82,26 @@ public class UserServiceImpl implements UserService {
         Optional.ofNullable(userRequestDto.getName())
                 .ifPresent(existingUser::setUserName);
 
-        return userRepository.save(existingUser)
+        return userRepository.save(existingUser);
+        /*
                 .doOnError(throwable ->
                         log.error("Error en método updateUserEntity {}", throwable.getMessage()))
                 .doOnSuccess((user) ->
                         log.info("Fin del método updateUserEntity"));
+
+         */
     }
 
     @Override
     public Mono<Void> deleteUserById(Integer userId) {
         log.info("Inicio del método deleteUserById con userId {}", userId);
-        return userRepository.deleteById(userId)
+        return userRepository.deleteById(userId);
+                /*
                 .doOnError(throwable ->
                         log.error("Error en método deleteUserById {}", throwable.getMessage()))
                 .doOnSuccess((user) ->
                         log.info("Fin del método deleteUserById"));
+
+                 */
     }
 }
