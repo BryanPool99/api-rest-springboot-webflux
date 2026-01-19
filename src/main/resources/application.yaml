@@ -1,0 +1,29 @@
+spring:
+  # Configuración de R2DBC para PostgreSQL
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5433/postgres
+    username: bpao
+    password: root
+    # Configuración del Pool de conexiones (R2DBC-Pool)
+    pool:
+      initial-size: 5
+      max-size: 20
+      max-idle-time: 30m
+
+  # Opcional: Si usas Spring Data R2DBC para auditoría o logs
+  data:
+    r2dbc:
+      repositories:
+        enabled: true
+
+# Configuración de logs para ver las consultas SQL en consola
+logging:
+  level:
+    org.springframework.data.r2dbc: DEBUG
+    io.r2dbc.postgresql: INFO
+
+server:
+  error:
+    include-stacktrace: never   # Nunca mostrar el stacktrace en el JSON de respuesta
+    include-message: always      # Mostrar nuestro mensaje personalizado
+    include-binding-errors: always
